@@ -4,20 +4,29 @@ import { fetchAllUser } from '../services/UserService';
 import ReactPaginate from 'react-paginate';
 import ModalAddNew from './ModalAddNew';
 import ModalEditUser from './ModalEditUser';
+import ModalConfirm from './ModalConfirm';
 import _ from 'lodash';
+import './TableUser.scss';
 
 const TableUser = (props) => {
   const [listUsers, setListUser] = useState([]);
-  const [totalUsers, setTotalUsers] = useState(0);
   const [totalPages, setTotalPages] = useState(0);
 
   const [isShowModalAddNew, setIsShowModalAddNew] = useState(false);
+
   const [isShowMobalEditUser, setIsShowMobalEditUser] = useState(false);
   const [dataUserEdit, setDataUserEdit] = useState({});
+
+  const [isShowModalDelete, setIsShowModalDelete] = useState(false);
+  const [dataUserDelete, setDataUserDelete] = useState({});
+
+  const [sortBy, setSortBy] = useState('asc');
+  const [sortField, setSortField] = useState('id');
 
   const handleClose = () => {
     setIsShowModalAddNew(false);
     setIsShowMobalEditUser(false);
+    setIsShowModalDelete(false);
   };
 
   const handleUpdate = (user) => {
@@ -41,7 +50,6 @@ const TableUser = (props) => {
     let res = await fetchAllUser(page);
 
     if (res && res.data) {
-      setTotalUsers(res.total);
       setListUser(res.data);
       setTotalPages(res.total_pages);
     }
@@ -54,6 +62,27 @@ const TableUser = (props) => {
   const handleEditUser = (user) => {
     setDataUserEdit(user);
     setIsShowMobalEditUser(true);
+  };
+
+  const handleDeleteUser = (user) => {
+    setIsShowModalDelete(true);
+    setDataUserDelete(user);
+  };
+
+  const handleDeleteFromModal = (user) => {
+    let clone = _.cloneDeep(listUsers);
+    clone = clone.filter((item) => item.id !== user.id);
+    setListUser(clone);
+  };
+
+  const handleSort = (sortBy, sortField) => {
+    setSortBy(sortBy);
+    setSortField(sortField);
+
+    let cloneListUsers = _.cloneDeep(listUsers);
+    cloneListUsers = _.orderBy(cloneListUsers, [sortField], [sortBy]);
+
+    setListUser(cloneListUsers);
   };
 
   return (
@@ -72,10 +101,38 @@ const TableUser = (props) => {
       <Table striped bordered hover>
         <thead>
           <tr>
-            <th>ID</th>
-            <th>Email</th>
-            <th>First Name</th>
-            <th>Last Name</th>
+            <th className='sort-header'>
+              <span>ID</span>
+              <span>
+                <i
+                  className='fa-solid fa-arrow-down-long'
+                  onClick={() => handleSort('desc', 'id')}
+                ></i>
+                <i
+                  className='fa-solid fa-arrow-up-long'
+                  onClick={() => handleSort('asc', 'id')}
+                ></i>
+              </span>
+            </th>
+            <th>
+              <span>Email</span>
+            </th>
+            <th className='sort-header'>
+              <span>First Name</span>
+              <span>
+                <i
+                  className='fa-solid fa-arrow-down-long'
+                  onClick={() => handleSort('desc', 'first_name')}
+                ></i>
+                <i
+                  className='fa-solid fa-arrow-up-long'
+                  onClick={() => handleSort('asc', 'first_name')}
+                ></i>
+              </span>
+            </th>
+            <th>
+              <span>Last Name</span>
+            </th>
             <th>Actions</th>
           </tr>
         </thead>
@@ -98,7 +155,12 @@ const TableUser = (props) => {
                   >
                     Edit
                   </button>
-                  <button className='btn btn-danger'>Delete</button>
+                  <button
+                    onClick={() => handleDeleteUser(user)}
+                    className='btn btn-danger'
+                  >
+                    Delete
+                  </button>
                 </td>
               </tr>
             ))}
@@ -134,6 +196,13 @@ const TableUser = (props) => {
         handleClose={handleClose}
         dataUserEdit={dataUserEdit}
         handleEditUserFromModal={handleEditUserFromModal}
+      />
+
+      <ModalConfirm
+        show={isShowModalDelete}
+        handleClose={handleClose}
+        dataUserDelete={dataUserDelete}
+        handleDeleteFromModal={handleDeleteFromModal}
       />
     </>
   );

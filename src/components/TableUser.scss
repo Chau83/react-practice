@@ -1,0 +1,10 @@
+.sort-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  i {
+    cursor: pointer;
+    padding: 0 2px;
+  }
+}
