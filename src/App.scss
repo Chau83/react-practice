@@ -11,3 +11,72 @@ code {
   font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
     monospace;
 }
+
+.app-container {
+  .login-container {
+    display: flex;
+    flex-direction: column;
+    margin: 0 auto;
+
+    .title {
+      text-align: center;
+      font-size: 23px;
+      font-weight: 600;
+      padding-top: 2rem;
+    }
+
+    .text {
+      font-weight: 600;
+      padding-bottom: 0.1rem;
+    }
+
+    input {
+      padding: 12px 7px;
+      outline: none;
+      margin-bottom: 7px;
+      background: #1618230f;
+      border: #1618230f;
+      border-radius: 5px;
+      width: 100%;
+
+      &:hover {
+        background-color: #dedede;
+      }
+    }
+
+    button {
+      margin-top: 15px;
+      padding: 10px;
+      border-radius: 5px;
+      outline: none;
+      border: none;
+
+      &.active {
+        background-color: #fe2c55;
+        color: white;
+      }
+    }
+
+    button:disabled {
+      cursor: not-allowed;
+      pointer-events: all !important;
+    }
+
+    .back {
+      text-align: center;
+      margin-top: 20px;
+      cursor: pointer;
+    }
+
+    .input-password {
+      position: relative;
+
+      i {
+        cursor: pointer;
+        position: absolute;
+        top: 17px;
+        right: 10px;
+      }
+    }
+  }
+}
