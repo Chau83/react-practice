@@ -7,9 +7,11 @@ import ModalEditUser from './ModalEditUser';
 import ModalConfirm from './ModalConfirm';
 import _ from 'lodash';
 import { debounce } from 'lodash';
+import Papa from 'papaparse';
 
 import './TableUser.scss';
 import { CSVLink, CSVDownload } from 'react-csv';
+import { toast } from 'react-toastify';
 
 const TableUser = (props) => {
   const [listUsers, setListUser] = useState([]);
@@ -26,7 +28,7 @@ const TableUser = (props) => {
   const [sortBy, setSortBy] = useState('asc');
   const [sortField, setSortField] = useState('id');
 
-  const [keywords, setKeywords] = useState('');
+  const [dataExport, setDataExport] = useState([]);
 
   const handleClose = () => {
     setIsShowModalAddNew(false);
@@ -104,12 +106,68 @@ const TableUser = (props) => {
     }
   }, 1000);
 
-  const csvData = [
-    ['firstname', 'lastname', 'email'],
-    ['Ahmed', 'Tomi', 'ah@smthing.co.com'],
-    ['Raed', 'Labes', 'rl@smthing.co.com'],
-    ['Yezzi', 'Min l3b', 'ymin@cocococo.com'],
-  ];
+  const getUsersExport = (event, done) => {
+    let result = [];
+    if (listUsers && listUsers.length > 0) {
+      result.push(['ID', 'Email', 'Firstname', 'Lastname']);
+      listUsers.map((item, index) => {
+        let arr = [];
+        arr[0] = item.id;
+        arr[1] = item.email;
+        arr[2] = item.first_name;
+        arr[3] = item.last_name;
+        result.push(arr);
+      });
+
+      setDataExport(result);
+      done();
+    }
+  };
+
+  const handleImportCSV = (event) => {
+    if (event.target && event.target.files && event.target.files[0]) {
+      let file = event.target.files[0];
+
+      if (file.type !== 'text/csv') {
+        toast.error('Only CSV files are supported');
+        return;
+      }
+
+      //Parse local CSV file
+      Papa.parse(file, {
+        // header: true,
+        complete: function (results) {
+          let rawCSV = results.data;
+          if (rawCSV.length > 0) {
+            if (rawCSV[0] && rawCSV[0].length === 3) {
+              if (
+                rawCSV[0][0] !== 'email' ||
+                rawCSV[0][1] !== 'first_name' ||
+                rawCSV[0][2] !== 'last_name'
+              ) {
+                toast.error('Wrong format header file!');
+              } else {
+                let result = [];
+
+                rawCSV.map((item, index) => {
+                  if (index > 0 && item.length === 3) {
+                    let obj = {};
+                    obj.email = item[0];
+                    obj.first_name = item[1];
+                    obj.last_name = item[2];
+                    result.push(obj);
+                  }
+                });
+                setListUser(result);
+                console.log(result);
+              }
+            } else toast.error('Wrong format file!');
+          } else toast.error('Something wrong happened');
+          console.log('Finished:', results.data);
+        },
+      });
+    }
+  };
 
   return (
     <>
@@ -119,14 +177,21 @@ const TableUser = (props) => {
         </span>
         <div className='group-button'>
           <label htmlFor='upLoad' className='btn btn-warning'>
-            <i class='fa-solid fa-upload me-1'></i>
+            <i className='fa-solid fa-upload me-1'></i>
             Import
-            <input id='upLoad' type='file' hidden />
+            <input
+              id='upLoad'
+              type='file'
+              hidden
+              onChange={(e) => handleImportCSV(e)}
+            />
           </label>
           <CSVLink
-            data={csvData}
+            data={dataExport}
             filename={'users.csv'}
             className='btn btn-primary'
+            asyncOnClick={true}
+            onClick={getUsersExport}
           >
             <i className='fa-solid fa-download me-1'></i>
             Export
