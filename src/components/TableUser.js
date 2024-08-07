@@ -190,7 +190,7 @@ const TableUser = (props) => {
             data={dataExport}
             filename={'users.csv'}
             className='btn btn-primary'
-            asyncOnClick={true}
+            asynconClick={true}
             onClick={getUsersExport}
           >
             <i className='fa-solid fa-download me-1'></i>

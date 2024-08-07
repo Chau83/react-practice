@@ -9,6 +9,13 @@ const Home = () => {
             This App have validate, router, fetch API from reqes.in and CRUD the
             users
           </p>
+          <p>
+            To login use this email: <strong>eve.holt@reqres.in</strong>
+          </p>
+          <p>
+            {' '}
+            and <strong>any</strong> password{' '}
+          </p>
         </div>
       </div>
     </>
